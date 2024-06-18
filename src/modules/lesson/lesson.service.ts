@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, MoreThan, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { StudentLessonService } from '../student-lesson/student-lesson.service';
 import { Student } from '../student/entities/student.entity';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -35,29 +35,9 @@ export class LessonService {
     });
   }
 
-  findToday() {
-    const today = new Date();
-    today.setHours(0);
-    today.setMinutes(0);
-
-    return this.lessonRepo.find({
-      where: {
-        createdAt: MoreThan(today),
-      },
-      relations: { program: true },
-    });
-  }
-
   findOwn(studentId: string) {
     return this.lessonRepo.find({
       where: { studentLessons: { student: { id: studentId } } },
-      relations: { program: true },
-    });
-  }
-
-  findSaved(studentId: string) {
-    return this.lessonRepo.find({
-      where: { savedStudents: { id: studentId } },
       relations: { program: true },
     });
   }
@@ -94,29 +74,5 @@ export class LessonService {
 
   async leaveLesson(student: Student, lessonId: string) {
     return this.studentLessonService.remove(student, lessonId);
-  }
-
-  async saveLesson(student: Student, lessonId: string) {
-    const lesson = await this.lessonRepo.findOne({
-      where: { id: lessonId },
-      relations: {
-        savedStudents: true,
-      },
-    });
-    lesson.savedStudents.push(student);
-    return await this.lessonRepo.save(lesson);
-  }
-
-  async unsaveLesson(student: Student, lessonId: string) {
-    const lesson = await this.lessonRepo.findOne({
-      where: { id: lessonId },
-      relations: {
-        savedStudents: true,
-      },
-    });
-    lesson.savedStudents = lesson.savedStudents.filter(
-      (s) => s.id != student.id,
-    );
-    return await this.lessonRepo.save(lesson);
   }
 }

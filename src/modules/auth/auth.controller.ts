@@ -52,11 +52,7 @@ export class AuthController {
     );
 
     if (await bcrypt.compare(authDto.password, instructor.password)) {
-      return {
-        access_token: this.authService.generateInstructorToken(instructor),
-        name: instructor.name,
-        photoUrl: instructor.imageUrl,
-      };
+      return this.authService.generateInstructorToken(instructor);
     } else {
       throw new ForbiddenException('Wrong password');
     }

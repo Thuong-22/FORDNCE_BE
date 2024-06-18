@@ -5,5 +5,4 @@ export class CreateInstructorDto {
   email!: string;
   password!: string;
   introduce!: string;
-  imageUrl: string;
 }
